@@ -1,0 +1,18 @@
+{{> header}}
+
+<h1>{{title}}</h1>
+<form method="post" action="/">
+    <button type="submit">Start Game</button>
+</form>
+
+<h3>{{gameCode}}</h3>
+
+<form method="post" action="/join" name="game">
+    <label>
+        Game Code
+        <input name="gameCode" type="text"/>
+    </label>
+    <button type="submit">Join Game</button>
+</form>
+
+{{> footer}}
