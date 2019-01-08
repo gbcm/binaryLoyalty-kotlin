@@ -15,9 +15,11 @@ class LobbyController(
     @GetMapping("/")
     fun getIndex(model: Model, @RequestParam pid: Long?): String {
         if (pid != null) {
-            val gameCode = playerRepo.findById(pid).get().game.gameCode
+            val player = playerRepo.findById(pid).get()
+            val gameCode = player.game.gameCode
             model["game"] = GamePresenter(
                     gameCode,
+                    player,
                     playerRepo.findAllByGameGameCode(gameCode))
         }
         model["title"] = "Binary Loyalty"
@@ -25,15 +27,15 @@ class LobbyController(
     }
 
     @PostMapping("/")
-    fun postIndex(): String {
-        val game = gameRepo.save(Game(gameCode = utils.generateGameCode()))
-        val player = playerRepo.save(Player(game = game))
+    fun postIndex(@ModelAttribute form: CreateGame): String {
+        val game = gameRepo.save(Game(utils.generateGameCode()))
+        val player = playerRepo.save(Player(form.playerName, game))
         return "redirect:/?pid=${player.id}"
     }
 
     @PostMapping("/join")
-    fun postJoin(@ModelAttribute postedGame: Game): String {
-        val player = playerRepo.save(Player(game = gameRepo.findByGameCode(postedGame.gameCode)))
+    fun postJoin(@ModelAttribute form: JoinGame): String {
+        val player = playerRepo.save(Player(form.playerName, gameRepo.findByGameCode(form.gameCode)))
         return "redirect:/?pid=${player.id}"
     }
 }

@@ -9,8 +9,8 @@ interface GameRepository : CrudRepository<Game, Long> {
 
 @Entity
 data class Game(
-        @Id @GeneratedValue val id: Long? = null,
-        val gameCode: String
+        val gameCode: String,
+        @Id @GeneratedValue val id: Long? = null
 )
 
 interface PlayerRepository : CrudRepository<Player, Long> {
@@ -19,6 +19,7 @@ interface PlayerRepository : CrudRepository<Player, Long> {
 
 @Entity
 data class Player(
-        @Id @GeneratedValue val id: Long? = null,
-        @ManyToOne @JoinColumn val game: Game
+        val name: String,
+        @ManyToOne @JoinColumn val game: Game,
+        @Id @GeneratedValue val id: Long? = null
 )

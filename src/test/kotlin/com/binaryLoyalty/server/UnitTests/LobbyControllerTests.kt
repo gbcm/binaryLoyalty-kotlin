@@ -27,32 +27,54 @@ class LobbyControllerTests {
     private val model = mock<Model>()
 
     @Test
-    fun `Players can join games`() {
+    fun `Create game creates a new player and game`() {
         //Assemble
-        val game = Game(5, "ABC12")
-        whenever(gameRepo.findByGameCode("ABC12")).thenReturn(game)
+        val gameCode = "ABC12"
+        val game = Game(gameCode,5)
         val playerId: Long = 2
-        whenever(playerRepo.save(Player(game = game))).thenReturn(Player(playerId, game))
+        val name = "Alice"
+        whenever(utils.generateGameCode()).thenReturn(gameCode)
+        whenever(gameRepo.save(Game(gameCode))).thenReturn(game)
+        whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, playerId))
 
         //Act
-        val result = subject.postJoin(Game(gameCode = "ABC12"))
+        val result = subject.postIndex(CreateGame(name))
+
+        //Assert
+        verify(gameRepo).save(Game(gameCode))
+        verify(playerRepo).save(Player(name, game))
+        expect(result).toBe("redirect:/?pid=$playerId")
+    }
+
+    @Test
+    fun `Players can join games`() {
+        //Assemble
+        val gameCode = "ABC12"
+        val game = Game(gameCode, 5)
+        val playerId: Long = 2
+        val name = "Alice"
+        whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
+        whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, playerId))
+
+        //Act
+        val result = subject.postJoin(JoinGame(name, gameCode))
 
         //Assert
         expect(result).toBe("redirect:/?pid=$playerId")
-        verify(playerRepo).save(Player(game = game))
+        verify(playerRepo).save(Player(name, game))
     }
 
     @Test
     fun `Joined players see other players in the same game`() {
         //Assemble
         val gameCode = "ABC12"
-        val game = Game(5, gameCode)
+        val game = Game(gameCode, 5)
         val playerId: Long = 2
-        val player = Player(playerId, game)
+        val player = Player("Bob", game, playerId)
         val playerList = listOf(
                 player,
-                Player(5, game),
-                Player(6, game)
+                Player("Cammy", game, 5),
+                Player("Darren", game, 6)
         )
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
         whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
@@ -63,25 +85,6 @@ class LobbyControllerTests {
         //Assert
         expect(result).toBe("lobby")
         verify(model)["title"] = "Binary Loyalty"
-        verify(model)["game"] = GamePresenter(gameCode, playerList)
-    }
-
-    @Test
-    fun `Start game creates a new player and game`() {
-        //Assemble
-        val gameCode = "ABC12"
-        val game = Game(5, gameCode)
-        val playerId: Long = 2
-        whenever(utils.generateGameCode()).thenReturn(gameCode)
-        whenever(gameRepo.save(Game(gameCode = gameCode))).thenReturn(game)
-        whenever(playerRepo.save(Player(game = game))).thenReturn(Player(playerId, game))
-
-        //Act
-        val result = subject.postIndex()
-
-        //Assert
-        verify(gameRepo).save(Game(gameCode = gameCode))
-        verify(playerRepo).save(Player(game = game))
-        expect(result).toBe("redirect:/?pid=$playerId")
+        verify(model)["game"] = GamePresenter(gameCode, player, playerList)
     }
 }

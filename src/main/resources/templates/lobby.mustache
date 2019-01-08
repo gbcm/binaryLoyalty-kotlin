@@ -1,25 +1,33 @@
 {{> header}}
 
 <h1>{{title}}</h1>
-<form method="post" action="/">
-    <button type="submit">Start Game</button>
+<form method="post" action="/" name="createGame">
+    <label>
+        Player Name
+        <input name="playerName" type="text"/>
+    </label>
+    <button type="submit">Create Game</button>
 </form>
 
-<h3>Current Game: {{game.gameCode}}</h3>
-
-<ul>
-    {{#game.players}}
-        <li>Player {{id}}</li>
-    {{/game.players}}
-</ul>
-
-
-<form method="post" action="/join" name="game">
+<form method="post" action="/join" name="joinGame">
+    <label>
+        Player Name
+        <input name="playerName" type="text"/>
+    </label>
     <label>
         Game Code
         <input name="gameCode" type="text"/>
     </label>
     <button type="submit">Join Game</button>
 </form>
+
+<h3>Current Game: {{game.gameCode}}</h3>
+<h4>Current Player: {{game.currentPlayer.name}}</h4>
+
+<ul>
+    {{#game.players}}
+        <li>Player {{name}}</li>
+    {{/game.players}}
+</ul>
 
 {{> footer}}

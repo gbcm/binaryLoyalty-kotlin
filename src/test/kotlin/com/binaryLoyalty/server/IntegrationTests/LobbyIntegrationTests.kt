@@ -23,9 +23,6 @@ class LobbyIntegrationTests : IntegrationTestsBase() {
     @Autowired
     lateinit var gameRepo: GameRepository
 
-    @Autowired
-    lateinit var playerRepo: PlayerRepository
-
     @Test
     fun `Players can create and join games with DB access`() {
         //Act
@@ -33,25 +30,29 @@ class LobbyIntegrationTests : IntegrationTestsBase() {
 
         //Assert
         expect(entity.statusCode).toBe(HttpStatus.OK)
-        expect(entity.body).toContain("Start Game")
+        expect(entity.body).toContain("Create Game")
 
         //Act
         val formParams = LinkedMultiValueMap<String, String>()
+        formParams.add("playerName", "Alice")
         entity = restTemplate.postRedirectGetForEntity("/", formParams)
 
         //Assert
-        expect(entity.body).toContain("Current Game:")
         val allGames = gameRepo.findAll()
         expect(allGames.count()).toBe(1)
+        val gameCode = allGames.iterator().next().gameCode
+        expect(entity.body).toContain("Current Game: $gameCode")
 
         //Act
-        formParams.add("gameCode", allGames.iterator().next().gameCode)
+        formParams.clear()
+        formParams.add("gameCode", gameCode)
+        formParams.add("playerName", "Bob")
         entity = restTemplate.postRedirectGetForEntity("/join", formParams)
 
         //Assert
-        val allPlayersIterator = playerRepo.findAll().iterator()
-        expect(entity.body).toContain("Player ${allPlayersIterator.next().id}")
-        expect(entity.body).toContain("Player ${allPlayersIterator.next().id}")
+        expect(entity.body).toContain("Alice")
+        expect(entity.body).toContain("Bob")
+        expect(entity.body).toContain("Current Player: Bob")
     }
 
 
