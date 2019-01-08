@@ -4,15 +4,19 @@ import org.springframework.data.repository.CrudRepository
 import javax.persistence.*
 
 interface GameRepository : CrudRepository<Game, Long> {
-    fun findAllByGameCode(gameCode: String)
+    fun findByGameCode(gameCode: String): Game
 }
+
 @Entity
 data class Game(
         @Id @GeneratedValue val id: Long? = null,
         val gameCode: String
 )
 
-interface PlayerRepository: CrudRepository<Player, Long>
+interface PlayerRepository : CrudRepository<Player, Long> {
+    fun findAllByGameGameCode(gameCode: String): List<Player>
+}
+
 @Entity
 data class Player(
         @Id @GeneratedValue val id: Long? = null,

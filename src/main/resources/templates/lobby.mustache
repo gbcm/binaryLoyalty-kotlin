@@ -5,7 +5,14 @@
     <button type="submit">Start Game</button>
 </form>
 
-<h3>{{gameCode}}</h3>
+<h3>Current Game: {{game.gameCode}}</h3>
+
+<ul>
+    {{#game.players}}
+        <li>Player {{id}}</li>
+    {{/game.players}}
+</ul>
+
 
 <form method="post" action="/join" name="game">
     <label>

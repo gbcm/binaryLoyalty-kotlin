@@ -3,43 +3,38 @@ package com.binaryLoyalty.server
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.set
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import java.util.*
-import kotlin.streams.asSequence
+import org.springframework.web.bind.annotation.*
 
 @Controller
-class LobbyController {
+class LobbyController(
+        val playerRepo: PlayerRepository,
+        val gameRepo: GameRepository,
+        val utils: UtilService) {
 
-    var gameCode = ""
 
     @GetMapping("/")
-    fun getIndex(model: Model): String {
+    fun getIndex(model: Model, @RequestParam pid: Long?): String {
+        if (pid != null) {
+            val gameCode = playerRepo.findById(pid).get().game.gameCode
+            model["game"] = GamePresenter(
+                    gameCode,
+                    playerRepo.findAllByGameGameCode(gameCode))
+        }
         model["title"] = "Binary Loyalty"
-        model["gameCode"] = gameCode
         return "lobby"
     }
 
     @PostMapping("/")
     fun postIndex(): String {
-        gameCode = generateGameCode()
-        return "redirect:/"
+        val game = gameRepo.save(Game(gameCode = utils.generateGameCode()))
+        val player = playerRepo.save(Player(game = game))
+        return "redirect:/?pid=${player.id}"
     }
 
     @PostMapping("/join")
-    fun postJoin(@ModelAttribute game: Game): String {
-        gameCode = game.gameCode
-        return "redirect:/"
-    }
-
-    private fun generateGameCode(): String {
-        val source = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return Random().ints(5, 0, source.length)
-                .asSequence()
-                .map(source::get)
-                .joinToString("")
+    fun postJoin(@ModelAttribute postedGame: Game): String {
+        val player = playerRepo.save(Player(game = gameRepo.findByGameCode(postedGame.gameCode)))
+        return "redirect:/?pid=${player.id}"
     }
 }
 
