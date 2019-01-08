@@ -21,13 +21,4 @@
     <button type="submit">Join Game</button>
 </form>
 
-<h3>Current Game: {{game.gameCode}}</h3>
-<h4>Current Player: {{game.currentPlayer.name}}</h4>
-
-<ul>
-    {{#game.players}}
-        <li>Player {{name}}</li>
-    {{/game.players}}
-</ul>
-
 {{> footer}}

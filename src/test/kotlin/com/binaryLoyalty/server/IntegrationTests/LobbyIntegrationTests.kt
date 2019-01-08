@@ -31,6 +31,7 @@ class LobbyIntegrationTests : IntegrationTestsBase() {
         //Assert
         expect(entity.statusCode).toBe(HttpStatus.OK)
         expect(entity.body).toContain("Create Game")
+        expect(entity.body!!.contains("Current Game")).toBe(false)
 
         //Act
         val formParams = LinkedMultiValueMap<String, String>()
@@ -41,6 +42,7 @@ class LobbyIntegrationTests : IntegrationTestsBase() {
         val allGames = gameRepo.findAll()
         expect(allGames.count()).toBe(1)
         val gameCode = allGames.iterator().next().gameCode
+        expect(entity.body!!.contains("Create Game")).toBe(false)
         expect(entity.body).toContain("Current Game: $gameCode")
 
         //Act

@@ -27,6 +27,16 @@ class LobbyControllerTests {
     private val model = mock<Model>()
 
     @Test
+    fun `The index has a title`() {
+        //Assemble
+
+        //Act
+        val result = subject.getIndex(model)
+
+        //Assert
+        verify(model)["title"] = "Binary Loyalty"
+    }
+    @Test
     fun `Create game creates a new player and game`() {
         //Assemble
         val gameCode = "ABC12"
@@ -43,7 +53,7 @@ class LobbyControllerTests {
         //Assert
         verify(gameRepo).save(Game(gameCode))
         verify(playerRepo).save(Player(name, game))
-        expect(result).toBe("redirect:/?pid=$playerId")
+        expect(result).toBe("redirect:/game?pid=$playerId")
     }
 
     @Test
@@ -60,7 +70,7 @@ class LobbyControllerTests {
         val result = subject.postJoin(JoinGame(name, gameCode))
 
         //Assert
-        expect(result).toBe("redirect:/?pid=$playerId")
+        expect(result).toBe("redirect:/game?pid=$playerId")
         verify(playerRepo).save(Player(name, game))
     }
 
@@ -80,10 +90,10 @@ class LobbyControllerTests {
         whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
 
         //Act
-        val result = subject.getIndex(model, playerId)
+        val result = subject.getGame(model, playerId)
 
         //Assert
-        expect(result).toBe("lobby")
+        expect(result).toBe("game")
         verify(model)["title"] = "Binary Loyalty"
         verify(model)["game"] = GamePresenter(gameCode, player, playerList)
     }
