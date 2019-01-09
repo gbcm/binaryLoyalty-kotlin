@@ -1,6 +1,8 @@
 package com.binaryLoyalty.server.IntegrationTests
 
 import com.nhaarman.expect.expect
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.openqa.selenium.WebDriver
@@ -18,19 +20,21 @@ import org.springframework.util.MultiValueMap
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class IntegrationTestsBase {
+class IntegrationTestsBaseWD {
+
+    val driver : WebDriver = ChromeDriver()
+
+    @LocalServerPort
+    var port: Int? = null
+
+    fun baseUrl() : String = "http://localhost:$port"
+
+    @After
+    fun tearDown() {
+        driver.quit()
+    }
 
     @Test
     fun contextLoads() {
-    }
-
-    fun TestRestTemplate.postRedirectGetForEntity(url: String, formMap: MultiValueMap<String, String>): ResponseEntity<String> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
-        val request = HttpEntity(formMap, headers)
-
-        val entity = this.postForEntity<String>(url, request)
-        expect(entity.statusCode).toBe(HttpStatus.FOUND)
-        return this.getForEntity(entity.headers.location!!)
     }
 }

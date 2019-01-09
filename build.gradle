@@ -58,4 +58,5 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0')
     testImplementation('com.nhaarman:expect.kt:0.6.2')
+	testImplementation('org.seleniumhq.selenium:selenium-java:3.141.59')
 }

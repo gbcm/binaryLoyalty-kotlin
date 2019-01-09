@@ -1,20 +1,14 @@
 package com.binaryLoyalty.server.IntegrationTests
 
 import com.binaryLoyalty.server.GameRepository
-import com.binaryLoyalty.server.PlayerRepository
 import com.nhaarman.expect.expect
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
-import org.springframework.http.*
-import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.http.HttpStatus
 import org.springframework.util.LinkedMultiValueMap
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class LobbyIntegrationTests : IntegrationTestsBase() {
 
     @Autowired
@@ -24,7 +18,7 @@ class LobbyIntegrationTests : IntegrationTestsBase() {
     lateinit var gameRepo: GameRepository
 
     @Test
-    fun `Players can create and join games with DB access`() {
+    fun `Players can create and join games`() {
         //Act
         var entity = restTemplate.getForEntity<String>("/")
 
@@ -52,11 +46,8 @@ class LobbyIntegrationTests : IntegrationTestsBase() {
         entity = restTemplate.postRedirectGetForEntity("/join", formParams)
 
         //Assert
-        expect(entity.body).toContain("Alice")
-        expect(entity.body).toContain("Bob")
+        expect(entity.body).toContain("Player Alice")
+        expect(entity.body).toContain("Player Bob")
         expect(entity.body).toContain("Current Player: Bob")
     }
-
-
-
 }

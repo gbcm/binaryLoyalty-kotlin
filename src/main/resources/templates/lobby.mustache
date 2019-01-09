@@ -4,7 +4,7 @@
 <form method="post" action="/" name="createGame">
     <label>
         Player Name
-        <input name="playerName" type="text"/>
+        <input id="createFormPlayerName" name="playerName" type="text"/>
     </label>
     <button type="submit">Create Game</button>
 </form>
@@ -12,11 +12,11 @@
 <form method="post" action="/join" name="joinGame">
     <label>
         Player Name
-        <input name="playerName" type="text"/>
+        <input id="joinFormPlayerName" name="playerName" type="text"/>
     </label>
     <label>
         Game Code
-        <input name="gameCode" type="text"/>
+        <input id="joinFormGameCode" name="gameCode" type="text"/>
     </label>
     <button type="submit">Join Game</button>
 </form>

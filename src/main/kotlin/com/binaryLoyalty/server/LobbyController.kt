@@ -14,7 +14,6 @@ class LobbyController(
         val gameRepo: GameRepository,
         val utils: UtilService) {
 
-
     @GetMapping("/")
     fun getIndex(model: Model): String {
         model["title"] = "Binary Loyalty"
@@ -39,7 +38,6 @@ class LobbyController(
         model["title"] = "Binary Loyalty"
         return "game"
     }
-
 
     @PostMapping("/join")
     fun postJoin(@ModelAttribute form: JoinGame): String {

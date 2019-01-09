@@ -13,7 +13,6 @@ import org.springframework.ui.Model
 import org.springframework.ui.set
 import java.util.*
 
-@RunWith(MockitoJUnitRunner::class)
 class LobbyControllerTests {
 
     private val playerRepo = mock<PlayerRepository>()
