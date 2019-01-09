@@ -7,11 +7,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
 import org.springframework.ui.Model
 import org.springframework.ui.set
-import java.util.*
 
 class LobbyControllerTests {
 
@@ -27,10 +24,8 @@ class LobbyControllerTests {
 
     @Test
     fun `The index has a title`() {
-        //Assemble
-
         //Act
-        val result = subject.getIndex(model)
+        subject.getIndex(model)
 
         //Assert
         verify(model)["title"] = "Binary Loyalty"
@@ -73,27 +68,5 @@ class LobbyControllerTests {
         verify(playerRepo).save(Player(name, game))
     }
 
-    @Test
-    fun `Joined players see other players in the same game`() {
-        //Assemble
-        val gameCode = "ABC12"
-        val game = Game(gameCode, 5)
-        val playerId: Long = 2
-        val player = Player("Bob", game, playerId)
-        val playerList = listOf(
-                player,
-                Player("Cammy", game, 5),
-                Player("Darren", game, 6)
-        )
-        whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
-        whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
 
-        //Act
-        val result = subject.getGame(model, playerId)
-
-        //Assert
-        expect(result).toBe("game")
-        verify(model)["title"] = "Binary Loyalty"
-        verify(model)["game"] = GamePresenter(gameCode, player, playerList)
-    }
 }

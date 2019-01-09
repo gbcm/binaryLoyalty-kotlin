@@ -27,18 +27,6 @@ class LobbyController(
         return "redirect:/game?pid=${player.id}"
     }
 
-    @GetMapping("/game")
-    fun getGame(model: Model, @RequestParam pid: Long): String {
-        val player = playerRepo.findById(pid).get()
-        val gameCode = player.game.gameCode
-        model["game"] = GamePresenter(
-                gameCode,
-                player,
-                playerRepo.findAllByGameGameCode(gameCode))
-        model["title"] = "Binary Loyalty"
-        return "game"
-    }
-
     @PostMapping("/join")
     fun postJoin(@ModelAttribute form: JoinGame): String {
         val player = playerRepo.save(Player(form.playerName, gameRepo.findByGameCode(form.gameCode)))
