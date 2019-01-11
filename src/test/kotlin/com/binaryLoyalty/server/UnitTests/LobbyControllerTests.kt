@@ -34,12 +34,12 @@ class LobbyControllerTests {
     fun `Create game creates a new player and game`() {
         //Assemble
         val gameCode = "ABC12"
-        val game = Game(gameCode,5)
+        val game = Game(gameCode, id = 5)
         val playerId: Long = 2
         val name = "Alice"
         whenever(utils.generateGameCode()).thenReturn(gameCode)
         whenever(gameRepo.save(Game(gameCode))).thenReturn(game)
-        whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, playerId))
+        whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, id=playerId))
 
         //Act
         val result = subject.postIndex(CreateGame(name))
@@ -54,11 +54,11 @@ class LobbyControllerTests {
     fun `Players can join games`() {
         //Assemble
         val gameCode = "ABC12"
-        val game = Game(gameCode, 5)
+        val game = Game(gameCode, id = 5)
         val playerId: Long = 2
         val name = "Alice"
         whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
-        whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, playerId))
+        whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, id=playerId))
 
         //Act
         val result = subject.postJoin(JoinGame(name, gameCode))
