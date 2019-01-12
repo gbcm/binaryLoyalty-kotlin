@@ -56,7 +56,7 @@ class GameControllerTest {
         whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
 
         //Act
-        val result = subject.startGame(model, playerId)
+        val result = subject.startGame(model, StartGame(playerId))
 
         //Assert
         expect(result).toBe("redirect:/game?pid=$playerId")
@@ -71,15 +71,19 @@ class GameControllerTest {
         val game = Game(gameCode, GameState.GETTING_READY, 5)
         val playerId: Long = 2
         val player = Player("Alice", game, false, playerId)
+        val playerList = listOf(player)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
         whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
+        whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
 
         //Act
         val result = subject.getReadyPrompt(model, playerId)
 
         //Assert
         expect(result).toBe("getReady/prompt")
+        verify(model)["title"] = "Binary Loyalty"
+        verify(model)["game"] = GamePresenter(gameCode, player, playerList)
     }
 
     @Test
@@ -89,15 +93,19 @@ class GameControllerTest {
         val game = Game(gameCode, GameState.GETTING_READY, 5)
         val playerId: Long = 2
         val player = Player("Alice", game, true, playerId)
+        val playerList = listOf(player)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
         whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
+        whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
 
         //Act
         val result = subject.getReadyPrompt(model, playerId)
 
         //Assert
         expect(result).toBe("getReady/waiting")
+        verify(model)["title"] = "Binary Loyalty"
+        verify(model)["game"] = GamePresenter(gameCode, player, playerList)
     }
 
     @Test
@@ -107,14 +115,18 @@ class GameControllerTest {
         val game = Game(gameCode, GameState.WAITING, 5)
         val playerId: Long = 2
         val player = Player(name = "Don't need this", game = game)
+        val playerList = listOf(player)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
         whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
+        whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
 
         //Act
         val result = subject.getReadyPrompt(model, playerId)
 
         //Assert
         expect(result).toBe("getReady/start")
+        verify(model)["title"] = "Binary Loyalty"
+        verify(model)["game"] = GamePresenter(gameCode, player, playerList)
     }
 }

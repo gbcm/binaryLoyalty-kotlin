@@ -13,27 +13,24 @@ class GameController(val gameRepo: GameRepository, val playerRepo: PlayerReposit
     @GetMapping("/game")
     fun getGame(model: Model, @RequestParam pid: Long): String {
         val player = playerRepo.findById(pid).get()
-        val gameCode = player.game.gameCode
-        model["game"] = GamePresenter(
-                gameCode,
-                player,
-                playerRepo.findAllByGameGameCode(gameCode))
-        model["title"] = "Binary Loyalty"
+        updatePresenter(model, player.game.gameCode, player)
         return "game"
     }
 
     @PostMapping("/game")
-    fun startGame(model: Model, playerId: Long): String {
-        val player = playerRepo.findById(playerId).get()
+    fun startGame(model: Model, form: StartGame): String {
+        val player = playerRepo.findById(form.playerId).get()
         playerRepo.save(player.copy(isReady = true))
         val game = gameRepo.findByGameCode(player.game.gameCode)
         gameRepo.save(game.copy(state = GameState.GETTING_READY))
         return "redirect:/game?pid=${player.id}"
     }
 
-    fun getReadyPrompt(model: Model, playerId: Long): String {
-        val player = playerRepo.findById(playerId).get()
+    @GetMapping("/game/getReady")
+    fun getReadyPrompt(model: Model, @RequestParam pid: Long): String {
+        val player = playerRepo.findById(pid).get()
         val game = gameRepo.findByGameCode(player.game.gameCode)
+        updatePresenter(model, player.game.gameCode, player)
         return when {
             game.state == GameState.WAITING -> "getReady/start"
             game.state == GameState.GETTING_READY &&
@@ -41,6 +38,14 @@ class GameController(val gameRepo: GameRepository, val playerRepo: PlayerReposit
             else -> "getReady/prompt"
         }
 
+    }
+
+    fun updatePresenter(model: Model, gameCode: String, player: Player) {
+        model["game"] = GamePresenter(
+                gameCode,
+                player,
+                playerRepo.findAllByGameGameCode(gameCode))
+        model["title"] = "Binary Loyalty"
     }
 
 

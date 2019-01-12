@@ -11,4 +11,25 @@
     {{/game.players}}
 </ul>
 
+<div id="getReady"></div>
+<script type="application/javascript">
+    function handleReadyResponse(data) {
+        document.getElementById("getReady").innerHTML = data;
+    }
+
+    function httpGetAsync(callback) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+                callback(xmlHttp.responseText);
+                setTimeout(function() {httpGetAsync(callback)}, 3000);
+            }
+        };
+        xmlHttp.open("GET", "/game/getReady?pid={{game.currentPlayer.id}}", true); // true for asynchronous
+        xmlHttp.send(null);
+    }
+
+    httpGetAsync(handleReadyResponse);
+
+</script>
 {{> footer}}

@@ -11,3 +11,7 @@ data class JoinGame(
 data class CreateGame(
         val playerName: String
 )
+
+data class StartGame(
+        val playerId: Long
+)
