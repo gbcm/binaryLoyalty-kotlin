@@ -14,9 +14,10 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.test.context.junit4.SpringRunner
 import java.lang.reflect.InvocationTargetException
 
+
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class IntegrationTestsBaseWD {
+class IntegrationTestsBase {
 
     @Autowired
     private lateinit var appContext: ApplicationContext
@@ -33,18 +34,16 @@ class IntegrationTestsBaseWD {
         try {
             val reflections = Reflections("com.binaryLoyalty.server")
             val repos = reflections.getSubTypesOf(CrudRepository::class.java)
-            val secondRoundRepos = mutableSetOf<Any>()
+            val secondRoundRepos = mutableSetOf<Class<*>>()
             for (repo in repos) {
                 try {
-                    repo.getMethod("deleteAll").invoke(appContext.getBean(repo.simpleName.decapitalize()))
+                    repo.getMethod("deleteAll").invoke(appContext.getBean(repo))
                 } catch (e: InvocationTargetException) {
                     secondRoundRepos.add(repo)
                 }
             }
             for (repo in secondRoundRepos) {
-                if (repo is Class<*>) {
-                    repo.getMethod("deleteAll").invoke(appContext.getBean(repo.simpleName.decapitalize()))
-                }
+                repo.getMethod("deleteAll").invoke(appContext.getBean(repo))
             }
         } finally {
             driver.quit()
