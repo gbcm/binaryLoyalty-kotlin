@@ -6,7 +6,7 @@ import org.junit.Test
 import org.openqa.selenium.By
 import org.springframework.beans.factory.annotation.Autowired
 
-class LobbyIntegrationTestsWD : IntegrationTestsBaseWD() {
+class LobbyIntegrationTests : IntegrationTestsBase() {
     @Autowired
     lateinit var gameRepo: GameRepository
 
