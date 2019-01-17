@@ -45,6 +45,5 @@ class GameIntegrationTests : IntegrationTestsBase() {
         val promptNo = driver.findElement(By.cssSelector("#promptNo"))
         expect(promptYes.isDisplayed).toBe(true)
         expect(promptNo.isDisplayed).toBe(true)
-
     }
 }

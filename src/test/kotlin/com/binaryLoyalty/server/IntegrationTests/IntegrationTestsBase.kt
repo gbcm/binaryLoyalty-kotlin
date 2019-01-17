@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.ApplicationContext
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.CrudRepository
 import org.springframework.test.context.junit4.SpringRunner
 import java.lang.reflect.InvocationTargetException
@@ -32,22 +33,43 @@ class IntegrationTestsBase {
     @After
     fun tearDown() {
         try {
-            val reflections = Reflections("com.binaryLoyalty.server")
-            val repos = reflections.getSubTypesOf(CrudRepository::class.java)
-            val secondRoundRepos = mutableSetOf<Class<*>>()
-            for (repo in repos) {
-                try {
-                    repo.getMethod("deleteAll").invoke(appContext.getBean(repo))
-                } catch (e: InvocationTargetException) {
-                    secondRoundRepos.add(repo)
-                }
-            }
-            for (repo in secondRoundRepos) {
-                repo.getMethod("deleteAll").invoke(appContext.getBean(repo))
-            }
+            cleanOutDatabase()
         } finally {
             driver.quit()
         }
+    }
+
+    fun cleanOutDatabase() {
+        var repositories = getAllCrudRepositoryClasses()
+        while (repositories.size > 0) {
+            val oldSize = repositories.size
+            repositories = attemptDeleteAll(repositories)
+            if (repositories.size == oldSize) {
+                throw Exception("No repositories were successfully emptied. " +
+                        "Thus you will need to manually clean your DB in your test.")
+            }
+        }
+    }
+
+    private fun getAllCrudRepositoryClasses(): MutableList<Class<*>> {
+        val reflections = Reflections("com.binaryLoyalty.server")
+        val ret = mutableListOf<Class<*>>()
+        ret.addAll(reflections.getSubTypesOf(CrudRepository::class.java))
+        return ret
+    }
+
+    private fun attemptDeleteAll(deleteFrom: MutableList<Class<*>>): MutableList<Class<*>> {
+        val reposWithFKProblems = mutableListOf<Class<*>>()
+        for (repo in deleteFrom) {
+            try {
+                repo.getMethod("deleteAll").invoke(appContext.getBean(repo))
+            } catch (e: InvocationTargetException) {
+                if (e.cause is DataIntegrityViolationException) {
+                    reposWithFKProblems.add(repo)
+                }
+            }
+        }
+        return reposWithFKProblems
     }
 
     @Test
