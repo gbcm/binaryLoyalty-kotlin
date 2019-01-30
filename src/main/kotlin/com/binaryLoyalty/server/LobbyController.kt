@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam
 @Controller
 class LobbyController(
         val playerRepo: PlayerRepository,
-        val gameRepo: GameRepository,
-        val utils: UtilService) {
+        val gameService: GameService) {
 
     @GetMapping("/")
     fun getIndex(model: Model): String {
@@ -22,14 +21,14 @@ class LobbyController(
 
     @PostMapping("/")
     fun postIndex(@ModelAttribute form: CreateGame): String {
-        val game = gameRepo.save(Game(utils.generateGameCode()))
+        val game = gameService.createNewGame()
         val player = playerRepo.save(Player(form.playerName, game))
         return "redirect:/game?pid=${player.id}"
     }
 
     @PostMapping("/join")
     fun postJoin(@ModelAttribute form: JoinGame): String {
-        val player = playerRepo.save(Player(form.playerName, gameRepo.findByGameCode(form.gameCode)))
+        val player = playerRepo.save(Player(form.playerName, gameService.findByGameCode(form.gameCode)))
         return "redirect:/game?pid=${player.id}"
     }
 }

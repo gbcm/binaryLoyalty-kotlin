@@ -40,10 +40,21 @@ class GameIntegrationTests : IntegrationTestsBase() {
         //Assert
         val waiting = driver.findElement(By.cssSelector("#waiting"))
         expect(waiting.text).toBe("Waiting for other players")
+        var timer = driver.findElement(By.cssSelector("#timer"))
+        val timerValue = timer.text.toInt()
+        expect(timerValue).toBeSmallerThan(16)
+        expect(timerValue).toBeGreaterThan(0)
+
+        //I don't love this, but the selenium wait commands are for load times
+        Thread.sleep(1000)
+
         driver.get("${baseUrl()}/game?pid=$player1Id")
         val promptYes = driver.findElement(By.cssSelector("#promptYes"))
         val promptNo = driver.findElement(By.cssSelector("#promptNo"))
         expect(promptYes.isDisplayed).toBe(true)
         expect(promptNo.isDisplayed).toBe(true)
+        timer = driver.findElement(By.cssSelector("#timer"))
+        expect(timer.text.toInt()).toBeSmallerThan(timerValue)
+        expect(timer.text.toInt()).toBeGreaterThan(0)
     }
 }

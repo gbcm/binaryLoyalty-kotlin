@@ -22,7 +22,7 @@
         xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
                 callback(xmlHttp.responseText);
-                setTimeout(function() {httpGetAsync(callback)}, 3000);
+                setTimeout(function() {httpGetAsync(callback)}, 900);
             }
         };
         xmlHttp.open("GET", "/game/getReady?pid={{game.currentPlayer.id}}", true); // true for asynchronous

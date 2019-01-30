@@ -6,14 +6,20 @@ import org.springframework.ui.set
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
+import java.time.temporal.ChronoUnit
 
 @Controller
-class GameController(val gameRepo: GameRepository, val playerRepo: PlayerRepository) {
+class GameController(
+        val gameService: GameService,
+        val playerRepo: PlayerRepository,
+        val timeService: TimeService) {
+
+    private val gameReadyTimeout = 15
 
     @GetMapping("/game")
     fun getGame(model: Model, @RequestParam pid: Long): String {
         val player = playerRepo.findById(pid).get()
-        updatePresenter(model, player.game.gameCode, player)
+        updatePresenter(model, player)
         return "game"
     }
 
@@ -21,33 +27,34 @@ class GameController(val gameRepo: GameRepository, val playerRepo: PlayerReposit
     fun startGame(model: Model, form: StartGame): String {
         val player = playerRepo.findById(form.playerId).get()
         playerRepo.save(player.copy(isReady = true))
-        val game = gameRepo.findByGameCode(player.game.gameCode)
-        gameRepo.save(game.copy(state = GameState.GETTING_READY))
+        gameService.updateState(player.game.gameCode, GameState.GETTING_READY)
         return "redirect:/game?pid=${player.id}"
     }
 
     @GetMapping("/game/getReady")
     fun getReadyPrompt(model: Model, @RequestParam pid: Long): String {
         val player = playerRepo.findById(pid).get()
-        val game = gameRepo.findByGameCode(player.game.gameCode)
-        updatePresenter(model, player.game.gameCode, player)
+        var game = gameService.findByGameCode(player.game.gameCode)
+        if (game.lastModified.until(timeService.getCurrentTime(), ChronoUnit.SECONDS) > gameReadyTimeout) {
+           game = gameService.updateState(game.gameCode, GameState.STARTED)
+        }
+        updatePresenter(model, player)
         return when {
+            game.state == GameState.STARTED -> "getReady/inProgress"
             game.state == GameState.WAITING -> "getReady/start"
             game.state == GameState.GETTING_READY &&
                     player.isReady -> "getReady/waiting"
             else -> "getReady/prompt"
         }
-
     }
 
-    fun updatePresenter(model: Model, gameCode: String, player: Player) {
+    fun updatePresenter(model: Model, player: Player) {
         model["game"] = GamePresenter(
-                gameCode,
+                player.game.gameCode,
                 player,
-                playerRepo.findAllByGameGameCode(gameCode))
+                playerRepo.findAllByGameGameCode(player.game.gameCode),
+                gameReadyTimeout - player.game.lastModified.until(timeService.getCurrentTime(), ChronoUnit.SECONDS))
         model["title"] = "Binary Loyalty"
     }
-
-
 }
 

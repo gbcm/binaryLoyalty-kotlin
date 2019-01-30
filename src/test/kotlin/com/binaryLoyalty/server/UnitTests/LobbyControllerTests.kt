@@ -14,11 +14,10 @@ class LobbyControllerTests {
 
     private val playerRepo = mock<PlayerRepository>()
 
-    private val gameRepo = mock<GameRepository>()
+    private val gameService = mock<GameService>()
 
-    private val utils = mock<UtilService>()
 
-    private val subject = LobbyController(playerRepo, gameRepo, utils)
+    private val subject = LobbyController(playerRepo, gameService)
 
     private val model = mock<Model>()
 
@@ -37,15 +36,14 @@ class LobbyControllerTests {
         val game = Game(gameCode, id = 5)
         val playerId: Long = 2
         val name = "Alice"
-        whenever(utils.generateGameCode()).thenReturn(gameCode)
-        whenever(gameRepo.save(Game(gameCode))).thenReturn(game)
+        whenever(gameService.createNewGame()).thenReturn(game)
         whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, id=playerId))
 
         //Act
         val result = subject.postIndex(CreateGame(name))
 
         //Assert
-        verify(gameRepo).save(Game(gameCode))
+        verify(gameService).createNewGame()
         verify(playerRepo).save(Player(name, game))
         expect(result).toBe("redirect:/game?pid=$playerId")
     }
@@ -57,7 +55,7 @@ class LobbyControllerTests {
         val game = Game(gameCode, id = 5)
         val playerId: Long = 2
         val name = "Alice"
-        whenever(gameRepo.findByGameCode(gameCode)).thenReturn(game)
+        whenever(gameService.findByGameCode(gameCode)).thenReturn(game)
         whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, id=playerId))
 
         //Act

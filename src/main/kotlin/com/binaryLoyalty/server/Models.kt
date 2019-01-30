@@ -1,6 +1,8 @@
 package com.binaryLoyalty.server
 
 import org.springframework.data.repository.CrudRepository
+import java.time.LocalDate
+import java.time.LocalTime
 import javax.persistence.*
 
 interface GameRepository : CrudRepository<Game, Long> {
@@ -10,7 +12,8 @@ interface GameRepository : CrudRepository<Game, Long> {
 @Entity
 data class Game(
         val gameCode: String,
-        var state: GameState = GameState.WAITING,
+        val state: GameState = GameState.WAITING,
+        val lastModified: LocalTime = LocalTime.now(),
         @Id @GeneratedValue val id: Long? = null
 )
 
