@@ -31,6 +31,13 @@ class GameController(
         return "redirect:/game?pid=${player.id}"
     }
 
+    @PostMapping("/game/unready")
+    fun unReadyPlayer(model: Model, form: UnReadyPlayer): String {
+        val player = playerRepo.findById(form.playerId).get()
+        playerRepo.delete(player)
+        return "redirect:/"
+    }
+
     @GetMapping("/game/getReady")
     fun getReadyPrompt(model: Model, @RequestParam pid: Long): String {
         val player = playerRepo.findById(pid).get()
@@ -56,5 +63,7 @@ class GameController(
                 gameReadyTimeout - player.game.lastModified.until(timeService.getCurrentTime(), ChronoUnit.SECONDS))
         model["title"] = "Binary Loyalty"
     }
+
+
 }
 

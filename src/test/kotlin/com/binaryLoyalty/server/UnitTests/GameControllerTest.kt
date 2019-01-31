@@ -165,4 +165,20 @@ class GameControllerTest {
         verify(model)["title"] = "Binary Loyalty"
         verify(model)["game"] = GamePresenter(gameCode, player, playerList, -1)
     }
+
+    @Test
+    fun `Unready player deletes player and redirects to lobby`() {
+        //Assemble
+        val playerId: Long = 2
+        val player = Player(name = "Foo", game = Game(""), id= playerId)
+
+        whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
+
+        //Act
+        val result = subject.unReadyPlayer(model, UnReadyPlayer(playerId))
+
+        //Assert
+        expect(result).toBe("redirect:/")
+        verify(playerRepo).delete(player)
+    }
 }

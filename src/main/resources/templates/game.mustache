@@ -5,12 +5,6 @@
 <h3 id="currentGameHeader">Current Game: {{game.gameCode}}</h3>
 <h4 id="currentPlayerHeader">Current Player: {{game.currentPlayer.name}}</h4>
 
-<ul>
-    {{#game.players}}
-        <li id="playerItem">Player {{name}}</li>
-    {{/game.players}}
-</ul>
-
 <div id="getReady"></div>
 <script type="application/javascript">
     function handleReadyResponse(data) {

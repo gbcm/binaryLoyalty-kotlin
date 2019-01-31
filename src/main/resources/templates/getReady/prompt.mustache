@@ -1,6 +1,13 @@
 Are you ready?!?!
+
+{{> playerList}}
+
 <div id="timer">{{game.seconds}}</div>
-<form method="post" action="/" name="readyForGame">
+<form method="post" action="/game" name="startGame">
+    <input type="hidden" name="playerId" value="{{game.currentPlayer.id}}">
     <button id="promptYes" type="submit">Yes!</button>
+</form>
+<form method="post" action="/game/unready" name="readyForGame">
+    <input type="hidden" name="playerId" value="{{game.currentPlayer.id}}">
     <button id="promptNo" type="submit">No</button>
 </form>
