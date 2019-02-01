@@ -147,7 +147,7 @@ class GameControllerTest {
         val gameCode = "ABC12"
         val game = Game(gameCode, GameState.WAITING, id = 5, lastModified = fakeTime.minusSeconds(16))
         val playerId: Long = 2
-        val player = Player(name = "Foo", game = game)
+        val player = Player(name = "Foo", isReady = true, game = game)
         val playerList = listOf(player)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
@@ -167,10 +167,44 @@ class GameControllerTest {
     }
 
     @Test
+    fun `Unready players are shown a link to the lobby at 15 sec and deleted`() {
+        //Assemble
+        val gameCode = "ABC12"
+        val game = Game(gameCode, GameState.WAITING, id = 5, lastModified = fakeTime.minusSeconds(16))
+        val playerId: Long = 2
+        val player = Player(name = "Foo", isReady = false, game = game)
+        val playerList = listOf(player)
+
+        whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
+        whenever(gameService.findByGameCode(gameCode)).thenReturn(game)
+        whenever(gameService.updateState(gameCode, GameState.STARTED)).thenReturn(
+                game.copy(state = GameState.STARTED))
+        whenever(playerRepo.findAllByGameGameCode(gameCode)).thenReturn(playerList)
+
+        //Act
+        val result = subject.getReadyPrompt(model, playerId)
+
+        //Assert
+        expect(result).toBe("getReady/failedStart")
+        verify(playerRepo).delete(player)
+        verify(model)["title"] = "Binary Loyalty"
+        verify(model)["game"] = GamePresenter(gameCode, player, playerList, -1)
+    }
+
+    @Test
+    fun `Players that don't exist are shown the lobby link`() {
+        //Act
+        val result = subject.getReadyPrompt(model, 9L)
+
+        //Assert
+        expect(result).toBe("getReady/failedStart")
+    }
+
+    @Test
     fun `Unready player deletes player and redirects to lobby`() {
         //Assemble
         val playerId: Long = 2
-        val player = Player(name = "Foo", game = Game(""), id= playerId)
+        val player = Player(name = "Foo", game = Game(""), id = playerId)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
 

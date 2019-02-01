@@ -40,17 +40,25 @@ class GameController(
 
     @GetMapping("/game/getReady")
     fun getReadyPrompt(model: Model, @RequestParam pid: Long): String {
-        val player = playerRepo.findById(pid).get()
+        val maybePlayer = playerRepo.findById(pid)
+        val player = when {
+            maybePlayer.isPresent -> maybePlayer.get()
+            else -> return "getReady/failedStart"
+        }
+
         var game = gameService.findByGameCode(player.game.gameCode)
-        if (game.lastModified.until(timeService.getCurrentTime(), ChronoUnit.SECONDS) > gameReadyTimeout) {
-           game = gameService.updateState(game.gameCode, GameState.STARTED)
+        if (getSecondsLeft(player) < 0) {
+            game = gameService.updateState(game.gameCode, GameState.STARTED)
+            if (!player.isReady) {
+                playerRepo.delete(player)
+            }
         }
         updatePresenter(model, player)
         return when {
-            game.state == GameState.STARTED -> "getReady/inProgress"
+            game.state == GameState.STARTED && player.isReady -> "getReady/inProgress"
+            game.state == GameState.STARTED && !player.isReady -> "getReady/failedStart"
             game.state == GameState.WAITING -> "getReady/start"
-            game.state == GameState.GETTING_READY &&
-                    player.isReady -> "getReady/waiting"
+            game.state == GameState.GETTING_READY && player.isReady -> "getReady/waiting"
             else -> "getReady/prompt"
         }
     }
@@ -60,9 +68,12 @@ class GameController(
                 player.game.gameCode,
                 player,
                 playerRepo.findAllByGameGameCode(player.game.gameCode),
-                gameReadyTimeout - player.game.lastModified.until(timeService.getCurrentTime(), ChronoUnit.SECONDS))
+                getSecondsLeft(player))
         model["title"] = "Binary Loyalty"
     }
+
+    fun getSecondsLeft(player: Player) =
+            gameReadyTimeout - player.game.lastModified.until(timeService.getCurrentTime(), ChronoUnit.SECONDS)
 
 
 }
