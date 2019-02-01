@@ -5,6 +5,7 @@ import com.binaryLoyalty.server.*
 import com.nhaarman.expect.expect
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.springframework.ui.Model
@@ -15,7 +16,6 @@ class LobbyControllerTests {
     private val playerRepo = mock<PlayerRepository>()
 
     private val gameService = mock<GameService>()
-
 
     private val subject = LobbyController(playerRepo, gameService)
 
@@ -59,11 +59,27 @@ class LobbyControllerTests {
         whenever(playerRepo.save(Player(name, game))).thenReturn(Player(name, game, id=playerId))
 
         //Act
-        val result = subject.postJoin(JoinGame(name, gameCode))
+        val result = subject.postJoin(model, JoinGame(name, gameCode))
 
         //Assert
         expect(result).toBe("redirect:/game?pid=$playerId")
         verify(playerRepo).save(Player(name, game))
+    }
+
+    @Test
+    fun `If a player joins a game in progress, they are remain in the lobby with a message`() {
+        //Assemble
+        val gameCode = "ABC12"
+        val game = Game(gameCode, id = 5, state = GameState.STARTED)
+        whenever(gameService.findByGameCode(gameCode)).thenReturn(game)
+
+        //Act
+        val result = subject.postJoin(model, JoinGame("Alice", gameCode))
+
+        //Assert
+        expect(result).toBe("lobby")
+        verify(model)["error"] = "Game $gameCode already in progress"
+        verifyNoMoreInteractions(playerRepo)
     }
 
 

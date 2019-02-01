@@ -27,8 +27,14 @@ class LobbyController(
     }
 
     @PostMapping("/join")
-    fun postJoin(@ModelAttribute form: JoinGame): String {
-        val player = playerRepo.save(Player(form.playerName, gameService.findByGameCode(form.gameCode)))
+    fun postJoin(model: Model, form: JoinGame): String {
+        val game = gameService.findByGameCode(form.gameCode)
+        if (game.state == GameState.STARTED) {
+            model["error"] = "Game ${game.gameCode} already in progress"
+            model["title"] = "Binary Loyalty"
+            return "lobby"
+        }
+        val player = playerRepo.save(Player(form.playerName, game))
         return "redirect:/game?pid=${player.id}"
     }
 }
