@@ -1,7 +1,6 @@
 package com.binaryLoyalty.server
 
 import org.springframework.data.repository.CrudRepository
-import java.time.LocalDate
 import java.time.LocalTime
 import javax.persistence.*
 
@@ -25,7 +24,8 @@ interface PlayerRepository : CrudRepository<Player, Long> {
 data class Player(
         val name: String,
         @ManyToOne @JoinColumn val game: Game,
-        val isReady : Boolean = false,
+        val isReady: Boolean = false,
+        val loyalty: Loyalty = Loyalty.UNASSIGNED,
         @Id @GeneratedValue val id: Long? = null
 )
 
@@ -33,3 +33,6 @@ enum class GameState {
     WAITING, GETTING_READY, STARTED;
 }
 
+enum class Loyalty {
+    UNASSIGNED, BETRAYER, LOYALIST
+}

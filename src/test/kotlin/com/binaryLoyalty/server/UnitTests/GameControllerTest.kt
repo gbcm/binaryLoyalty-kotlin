@@ -62,7 +62,7 @@ class GameControllerTest {
         val game = Game(gameCode, id = 5, lastModified = fakeInitTime)
         val playerId: Long = 2
         val player = Player("Alice", game, id = playerId)
-        val readyPlayer = Player("Alice", game, true, playerId)
+        val readyPlayer = Player("Alice", game, true, id = playerId)
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
         whenever(gameService.findByGameCode(gameCode)).thenReturn(game)
 
@@ -81,7 +81,7 @@ class GameControllerTest {
         val gameCode = "ABC12"
         val game = Game(gameCode, GameState.GETTING_READY, id = 5, lastModified = fakeInitTime)
         val playerId: Long = 2
-        val player = Player("Alice", game, false, playerId)
+        val player = Player("Alice", game, false, id = playerId)
         val playerList = listOf(player)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
@@ -103,7 +103,7 @@ class GameControllerTest {
         val gameCode = "ABC12"
         val game = Game(gameCode, GameState.GETTING_READY, id = 5, lastModified = fakeInitTime)
         val playerId: Long = 2
-        val player = Player("Alice", game, true, playerId)
+        val player = Player("Alice", game, true, id = playerId)
         val playerList = listOf(player)
 
         whenever(playerRepo.findById(playerId)).thenReturn(Optional.of(player))
