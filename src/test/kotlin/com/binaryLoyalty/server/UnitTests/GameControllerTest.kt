@@ -9,6 +9,7 @@ import org.junit.Before
 import org.junit.Test
 import org.springframework.ui.Model
 import org.springframework.ui.set
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
@@ -20,8 +21,8 @@ class GameControllerTest {
 
     private val timeService = mock<TimeService>()
     private val timeDiff = 10L
-    private val fakeInitTime = LocalTime.now().minusSeconds(timeDiff)
-    private val fakeTime = LocalTime.now()
+    private val fakeInitTime = LocalDateTime.now().minusSeconds(timeDiff)
+    private val fakeTime = LocalDateTime.now()
 
     private val subject = GameController(gameService, playerRepo, timeService)
     private val model = mock<Model>()

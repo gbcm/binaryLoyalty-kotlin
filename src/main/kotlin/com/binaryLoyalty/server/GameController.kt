@@ -16,6 +16,7 @@ class GameController(
 
     private val gameReadyTimeout = 15
 
+
     @GetMapping("/game")
     fun getGame(model: Model, @RequestParam pid: Long): String {
         val player = playerRepo.findById(pid).get()
@@ -53,6 +54,7 @@ class GameController(
                 playerRepo.delete(player)
             }
         }
+
         updatePresenter(model, player)
         return when {
             game.state == GameState.STARTED && player.isReady -> "getReady/inProgress"

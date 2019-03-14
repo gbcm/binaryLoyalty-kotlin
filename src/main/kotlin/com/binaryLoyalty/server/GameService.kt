@@ -2,7 +2,6 @@ package com.binaryLoyalty.server
 
 import org.springframework.stereotype.Service
 import java.lang.Math.floor
-import java.lang.Math.round
 import java.util.*
 import kotlin.streams.asSequence
 
@@ -11,6 +10,7 @@ class GameService(
         val gameRepo: GameRepository,
         val timeService: TimeService,
         val playerRepo: PlayerRepository) {
+
     fun createNewGame(): Game {
         return gameRepo.save(Game(
                 generateGameCode(),
@@ -28,22 +28,14 @@ class GameService(
     }
 
     fun assignLoyalties(gameCode: String) {
-        val players = playerRepo.findAllByGameGameCode(gameCode)
-        val loyaltyBag = mutableListOf<Loyalty>()
-        val numBetrayers = round(floor(.32 * players.size))
-
-        for (i in 1..players.size) {
-            if (i <= numBetrayers) {
-                loyaltyBag.add(Loyalty.BETRAYER)
-            } else {
-                loyaltyBag.add(Loyalty.LOYALIST)
-            }
-        }
-
-        for (player in players) {
-            val i = Random().nextInt(loyaltyBag.size)
-            playerRepo.save(player.copy(loyalty = loyaltyBag[i]))
-            loyaltyBag.removeAt(i)
+        val players = playerRepo.findAllByGameGameCode(gameCode).shuffled()
+        val numBetrayers = floor(.32 * players.size).toInt()
+        for ((index, player) in players.withIndex()) {
+            playerRepo.save(
+                    player.copy(loyalty = when {
+                        index < numBetrayers -> Loyalty.BETRAYER
+                        else -> Loyalty.LOYALIST
+                    }))
         }
     }
 
@@ -53,5 +45,9 @@ class GameService(
                 .asSequence()
                 .map(source::get)
                 .joinToString("")
+    }
+
+    fun findAll(): List<Game> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

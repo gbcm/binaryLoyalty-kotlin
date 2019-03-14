@@ -6,6 +6,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor.forClass
 import org.mockito.stubbing.Answer
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class GameServiceTest {
@@ -16,7 +17,7 @@ class GameServiceTest {
 
     private val subject = GameService(gameRepo, timeService, playerRepo)
 
-    private val fakeTime = LocalTime.now()
+    private val fakeTime = LocalDateTime.now()
 
     private val fakeId = 5L
 
@@ -54,7 +55,7 @@ class GameServiceTest {
 
     @Test
     fun `can update game state`() {
-        val mockGame = Game("1", lastModified = LocalTime.of(1, 1, 1), id = 1L)
+        val mockGame = Game("1", lastModified = LocalDateTime.of(1,1,1, 1, 1), id = 1L)
         whenever(gameRepo.findByGameCode("ABC")).thenReturn(mockGame)
 
         val expectedGame = mockGame.copy(lastModified = fakeTime, state = GameState.GETTING_READY)
